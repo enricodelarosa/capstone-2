@@ -1,2 +1,2 @@
 node_modules
-.env
+#.env including .env for checking of instructor

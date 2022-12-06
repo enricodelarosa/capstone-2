@@ -8,5 +8,8 @@ userRouter.post('/register', userController.checkDuplicateEmail, userController.
 
 userRouter.post('/login', userController.login);
 
+userRouter.get('/:id', userController.getDetails);
+
+
 
 module.exports = userRouter;

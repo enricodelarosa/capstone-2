@@ -20,7 +20,7 @@ module.exports.verify = (req, res, next) => {
     //GEt JWT (JSON Web Token) from postman 
 
     if (!req.headers.authorization) {
-        return res.send('Please log-in.')
+        return res.send('Please log-in to perform operation.')
     }
 
     let token = req.headers.authorization

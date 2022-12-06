@@ -3,19 +3,7 @@ const bcrypt = require("bcrypt");
 const auth = require('../utils/auth.js');
 
 // Untested
-module.exports.verifyAdmin = (req, res, next) => {
-    const isAdmin = auth.decode(req.headers.authorization).isAdmin
 
-
-    if (!isAdmin) {
-        return res.send('User must be ADMIN to access this.');
-    }
-
-    // req.body.newData = newData;
-
-    next();
-
-}
 
 module.exports.register = (req ,res) => {
     const {email, password, isAdmin,cart} = req.body
@@ -72,5 +60,17 @@ module.exports.login = (req, res) => {
         }
 
         return res.send({access: auth.createAccessToken(result)});
+    })
+}
+
+module.exports.getDetails = (req, res) => {
+    const userId = req.params.id;
+
+    
+
+    return User.findById(userId).then(result => {
+        result.password = '';
+        
+        return res.send(result);
     })
 }
