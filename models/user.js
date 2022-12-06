@@ -13,10 +13,28 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-    cart: {
-        type: Array,
-        default: []
-    }
+    cartValue: {
+        type: Number,
+        default: 0
+    },
+    cart: [{
+        productId: {
+            type: String,
+            required: [true, 'Product Id is required']
+        },
+        quantity: {
+            type: Number,
+            required: [true, 'Product quantity is required']
+        },
+        unitPrice: {
+            type: Number,
+            required: [true, 'Unit Price is required']
+        },
+        subTotal: {
+            type: Number,
+            required: [true, 'subTotal is required']
+        }
+    }]
 })
 
 

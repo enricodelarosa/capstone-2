@@ -6,7 +6,7 @@ const secret = process.env.APP_SECRET_KEY;
 module.exports.createAccessToken = user => {
 	// payload
 	const data = {
-		id: user._id,
+		userId: user._id,
 		email: user.email,
 		isAdmin: user.isAdmin
 	}

@@ -74,3 +74,49 @@ module.exports.getDetails = (req, res) => {
         return res.send(result);
     })
 }
+
+module.exports.addToCart = (req, res) => {
+
+    const userId = req.body.userIdFromToken;
+    const {productId, quantity, unitPrice,subTotal} = req.body;
+
+
+    
+    if (!productId || !quantity || ! unitPrice || !subTotal) {
+        return res.send("Missing field of item order");
+    } 
+
+    const addToCart = {
+        productId: productId,
+        quantity: quantity,
+        unitPrice: unitPrice,
+        subTotal: quantity * unitPrice
+    }
+
+
+    return User.findById(userId).then(user => {
+        user.cart.push(addToCart);
+
+        return user.save().then((user, err) => {
+            if (err) {
+                return res.send(true);
+            }
+
+            return res.send(true);
+        })
+    })
+
+
+// Edit product quantity in cart
+// involves array.find on the cart array; props a mongoose shortcut for that
+// Remove products from cart
+// we can probs do a set?
+// total price
+// This can just be a middle ware
+// update cartvalue after every cart modification
+
+
+
+
+
+}
