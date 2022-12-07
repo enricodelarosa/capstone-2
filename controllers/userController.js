@@ -312,12 +312,35 @@ module.exports.getUserOrders = async (req, res) => {
     const userId = req.body.userIdFromToken;
 
     const orders = await Order.find({userId: userId}).then(result => {
-        return res.send(result);
+        return result
     })
 
+    
+
     const orderItems = await orders.map(order => {
-        return 
+        console.log(order);
+        const orderId = String(order._id);
+        console.log(orderId);
+        return Orderitem.find({orderId: orderId}).then((foundOrderItem, err) => {
+            
+            const {totalAmount, purchasedOn} = order;
+            joinedOrder = {
+                orderId: orderId,
+                totalAmount: totalAmount,
+                purchasedOn: purchasedOn,
+                orderItems: foundOrderItem
+            }
+            return joinedOrder
+        });
     })
+
+    return Promise.all(orderItems).then(orderItemsArray => {
+        return res.send(orderItemsArray);
+    })
+
+
+    
+
 
 
     // The orderitems table was created so that items can be shipped separately especially if they're from different sellers.
