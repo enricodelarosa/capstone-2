@@ -1,7 +1,6 @@
 const express = require("express");
 const userRouter = express.Router();
 const auth = require('../utils/auth.js');
-const getUserIdFromToken = require('./getUserIdFromToken.js')
 
 const userController = require('../controllers/userController.js');
 
@@ -9,7 +8,7 @@ userRouter.post('/register', userController.checkDuplicateEmail, userController.
 
 userRouter.post('/login', userController.login);
 
-userRouter.post('/addToCart', auth.verify,getUserIdFromToken, userController.addToCart);
+userRouter.post('/cart', auth.verify,auth.getUserIdFromToken, userController.addToCart);
 
 userRouter.get('/:id', userController.getDetails);
 

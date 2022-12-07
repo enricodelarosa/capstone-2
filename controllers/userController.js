@@ -77,6 +77,7 @@ module.exports.getDetails = (req, res) => {
 
 module.exports.addToCart = (req, res) => {
 
+    //get unit price from product table
     const userId = req.body.userIdFromToken;
     const {productId, quantity, unitPrice,subTotal} = req.body;
 
@@ -89,7 +90,7 @@ module.exports.addToCart = (req, res) => {
     const addToCart = {
         productId: productId,
         quantity: quantity,
-        unitPrice: unitPrice,
+        unitPrice: ,
         subTotal: quantity * unitPrice
     }
 

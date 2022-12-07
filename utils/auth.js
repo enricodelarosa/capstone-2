@@ -1,6 +1,8 @@
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
+const auth = require('./auth.js')
+
 const secret = process.env.APP_SECRET_KEY;
 
 module.exports.createAccessToken = user => {
@@ -61,6 +63,34 @@ module.exports.decode = token => {
         }
     });
 }
+
+
+
+module.exports.verifyAdmin = (req, res, next) => {
+    const isAdmin = auth.decode(req.headers.authorization).isAdmin
+
+    if (!isAdmin) {
+        return res.send('User must be ADMIN to access this.');
+    }
+
+    // req.body.newData = newData;
+
+    next();
+
+}
+
+
+
+module.exports.getUserIdFromToken = (req, res, next) => {
+    const userId = auth.decode(req.headers.authorization).id
+
+    req.body.userIdFromToken = userId;
+
+    next();
+
+}
+
+
 
 
 
