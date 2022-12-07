@@ -13,7 +13,7 @@ module.exports.createAccessToken = user => {
 		isAdmin: user.isAdmin
 	}
 
-	return jwt.sign(data, secret, {});
+	return jwt.sign(data, secret, {expiresIn:'2d'});
 }
 
 
@@ -21,22 +21,28 @@ module.exports.verify = (req, res, next) => {
 
     //GEt JWT (JSON Web Token) from postman 
 
-    if (!req.headers.authorization) {
+    let token = req.cookies.token || '';
+
+    if (!token) {
         return res.send('Please log-in to perform operation.')
     }
 
-    let token = req.headers.authorization
-
     if (typeof token !== "undefined ") {
         //console.log(token);
+
+        console.log(token);
         
         // remove first 7 characters (Bearer) from the token
-        token = token.slice(7,token.length);
 
         return jwt.verify(token, secret, (error, data) => {
             if (error) {
                 return res.send({auth: "Failed"});
             } else {
+                req.body.user = {
+                    userId: data.userId,
+                    isAdmin: data.isAdmin
+                }
+
                 next();
             }
         });
@@ -49,11 +55,11 @@ module.exports.verify = (req, res, next) => {
 
 // To decode the user details from the token
 module.exports.decode = token => {
-    if (typeof token !== "undefined") {
-        // remove first 7 characters (Bearer) from the token
-        token = token.slice(7,token.length);
+    // if (typeof token !== "undefined") {
+    //     // remove first 7 characters (Bearer) from the token
+    //     token = token.slice(7,token.length);
 
-    }
+    // }
 
     return jwt.verify(token, secret, (error, data) => {
         if (error) {
@@ -67,7 +73,7 @@ module.exports.decode = token => {
 
 
 module.exports.verifyAdmin = (req, res, next) => {
-    const isAdmin = auth.decode(req.headers.authorization).isAdmin
+    const isAdmin = req.body.user.isAdmin
 
     if (!isAdmin) {
         return res.send('User must be ADMIN to access this.');
@@ -82,7 +88,7 @@ module.exports.verifyAdmin = (req, res, next) => {
 
 
 module.exports.getUserIdFromToken = (req, res, next) => {
-    const userId = auth.decode(req.headers.authorization).userId
+    const userId = req.body.user.userId
 
     req.body.userIdFromToken = userId;
 

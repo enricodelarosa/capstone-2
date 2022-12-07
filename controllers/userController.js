@@ -62,6 +62,14 @@ module.exports.login = (req, res) => {
             return res.send(false);
         }
 
+        const expiration = 172800000; //2 days
+        const cookie =  res.cookie('token',auth.createAccessToken(result), {
+            expires: new Date(Date.now() + expiration),
+            secure: false, //set to ture if using https,
+            httpOnly: true
+        })
+
+        return res.send('access granted');
         return res.send({access: auth.createAccessToken(result)});
     })
 }

@@ -2,6 +2,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors'); 
 
+const cookieParser = require('cookie-parser');
+
 const jswt = require('jsonwebtoken');
 
 const path = require('path');
@@ -21,6 +23,8 @@ const app = express();
 
 // To allow cross origin resource sharing
 app.use(cors());
+
+app.use(cookieParser());
 
 // To read json objects
 app.use(express.json());
