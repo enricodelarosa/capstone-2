@@ -301,13 +301,37 @@ module.exports.checkout = async(req, res) => {
         })
     })
 
-
-
-
-
     // Push cart items to itemorder
     // push order number to order
 
 
+}
 
+module.exports.getUserOrders = (req, res) => {
+
+    const userId = req.body.userIdFromToken;
+
+    return Order.find({userId: userId}).then(result => {
+        return res.send(result);
+    })
+    // The itemorders table was created so that items can be shipped separately especially if they're from different sellers.
+
+    // To get orderitems, we use all orderids returned by the request and we create an array with objects that have the following properties:
+    // 1. OrderId
+    // 2. OrderItems
+    // 3. CreatedOn
+    // 4. TotalAmount
+    /*
+        Ex. [{
+            OrderId: 1,
+            OrderItems: [{}, {}, {}],
+            totalAmount: 2343.00
+            createdOn: sample date
+        },
+        {
+            OrderId: 2
+        }
+        ]
+    */
+        
 }

@@ -16,6 +16,8 @@ userRouter.patch('/cart/:id', auth.verify,auth.getUserIdFromToken, userControlle
 
 userRouter.post('/cart/checkout', auth.verify,auth.getUserIdFromToken, userController.checkout)
 
+userRouter.get('/orders', auth.verify,auth.getUserIdFromToken, userController.getUserOrders);
+
 
 userRouter.get('/:id', userController.getDetails);
 
