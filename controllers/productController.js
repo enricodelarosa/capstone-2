@@ -28,8 +28,10 @@ module.exports.createProduct = (req, res) => {
 
 }
 
+
+// Only get the active ones
 module.exports.getAllProducts = (req, res) => {
-    return Product.find({}).then(result => {
+    return Product.find({isActive: true}).then(result => {
         return res.send(result);
     })
 }
