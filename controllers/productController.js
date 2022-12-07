@@ -29,7 +29,7 @@ module.exports.createProduct = (req, res) => {
 }
 
 
-// Only get the active ones
+
 module.exports.getAllProducts = (req, res) => {
     return Product.find({isActive: true}).then(result => {
         return res.send(result);
@@ -74,7 +74,7 @@ module.exports.updateProduct = (req, res) => {
 function doActivate(productId,bool) {
     const updateIsActive = {isActive: bool}
 
-    return Product.findByIdAndUpdate(productId, updateIsActive).then((updatedProduct, err) => {
+    return Product.findByIdAndUpdate(productId, updateIsActive).then((foundProduct, err) => {
         if (err) {
             return false;
         }

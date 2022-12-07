@@ -8,7 +8,14 @@ userRouter.post('/register', userController.checkDuplicateEmail, userController.
 
 userRouter.post('/login', userController.login);
 
-userRouter.post('/cart', auth.verify,auth.getUserIdFromToken, userController.addToCart);
+userRouter.post('/cart', auth.verify,auth.getUserIdFromToken, userController.addToCart, userController.updateCartValue);
+
+userRouter.delete('/cart/:id', auth.verify,auth.getUserIdFromToken, userController.removeFromCart, userController.updateCartValue);
+
+userRouter.patch('/cart/:id', auth.verify,auth.getUserIdFromToken, userController.updateCartItem, userController.updateCartValue);
+
+userRouter.post('/cart/checkout', auth.verify,auth.getUserIdFromToken, userController.checkout)
+
 
 userRouter.get('/:id', userController.getDetails);
 

@@ -1,4 +1,7 @@
 const User = require("../models/user.js");
+const Product = require("../models/product.js");
+const Order = require("../models/order.js");
+const Itemorder = require("../models/itemorder.js");
 const bcrypt = require("bcrypt");
 const auth = require('../utils/auth.js');
 
@@ -75,48 +78,235 @@ module.exports.getDetails = (req, res) => {
     })
 }
 
-module.exports.addToCart = (req, res) => {
+module.exports.addToCart = async (req, res, next) => {
 
     //get unit price from product table
     const userId = req.body.userIdFromToken;
-    const {productId, quantity, unitPrice,subTotal} = req.body;
+    const {productId, quantity} = req.body;
 
+    const unitPrice = await Product.findById(productId).then(product => {
+        return product.price;
+    })
+
+    if (!unitPrice) {
+        return res.send('Product Id does not exit');
+    } 
 
     
-    if (!productId || !quantity || ! unitPrice || !subTotal) {
+    if (!productId || !quantity) {
         return res.send("Missing field of item order");
     } 
 
     const addToCart = {
         productId: productId,
         quantity: quantity,
-        unitPrice: ,
+        unitPrice: unitPrice,
         subTotal: quantity * unitPrice
     }
 
 
     return User.findById(userId).then(user => {
+ 
+        const isAlreadyInCart = user.cart.find(itemorder => {
+            return itemorder.productId == productId;
+        })
+
+        if (isAlreadyInCart) {
+            return res.send("Item already in cart");
+        }
+
+
+
         user.cart.push(addToCart);
 
         return user.save().then((user, err) => {
             if (err) {
-                return res.send(true);
+                return res.send(false);
             }
 
-            return res.send(true);
+            next();
+            
         })
     })
 
 
+
+
+}
+
+
 // Edit product quantity in cart
 // involves array.find on the cart array; props a mongoose shortcut for that
-// Remove products from cart
-// we can probs do a set?
-// total price
-// This can just be a middle ware
-// update cartvalue after every cart modification
 
 
+module.exports.removeFromCart = (req, res, next) => {
+
+    const userId = req.body.userIdFromToken;
+    const productId = req.params.id;
+
+    
+
+    return User.findById(userId).then(user => {
+        
+        user.cart.pull({productId: productId});
+
+        return user.save().then((user, err) => {
+            if (err) {
+                return res.send(false);
+            }
+
+            next();
+            
+        })
+
+    })
+
+}
+
+module.exports.updateCartItem = async (req, res, next) => {
+    const userId = req.body.userIdFromToken;
+    const productId = req.params.id;
+
+    const quantity = req.query.quantity;
+
+    const unitPrice = await Product.findById(productId).then(product => {
+        return product.price;
+    })
+
+    if (!unitPrice) {
+        return res.send('Product Id does not exit');
+    } 
+
+    
+    if (!productId || !quantity) {
+        return res.send("Missing field of item order");
+    } 
+
+    return User.updateOne(
+        {_id: userId,"cart.productId": productId},
+        {$set: {
+            "cart.$.quantity": quantity,
+            "cart.$.unitPrice": unitPrice,
+            "cart.$.subTotal": quantity * unitPrice
+        }
+    }).then((foundUser, err) => {
+        if (err) {
+            return res.send(false);
+        }
+
+
+        next();
+    })
+
+}
+
+
+
+
+
+module.exports.updateCartValue = async (req, res)=> {
+
+    const userId = req.body.userIdFromToken;
+
+    const cartArray = await User.findById(userId).then(user => {
+        return user.cart;
+    })
+
+    const newCartValue = cartArray.reduce((total,itemOrder) => {
+        return total + Number(itemOrder.subTotal);
+        
+
+    }, 0)
+
+    console.log(newCartValue);
+
+
+    const result = await User.findByIdAndUpdate(userId, {cartValue: newCartValue}).then((foundUser, err) => {
+        if (err) {
+            return res.send(false);
+        }
+
+        res.send(true);
+    })
+
+}
+
+module.exports.checkout = async(req, res) => {
+    const userId = req.body.userIdFromToken;
+
+    const [cartArray, cartValue]  = await User.findById(userId).then(user => {
+        return [user.cart, user.cartValue];
+    })
+
+    const newOrder = new Order({
+        userId: userId,
+        totalAmount: cartValue,
+    })
+
+    const orderId = await newOrder.save().then((newOrder, err) => {
+        if (err) {
+            return false
+        }
+
+        console.log(newOrder)
+
+        const id = String(newOrder._id);
+        return id;
+
+
+    })
+
+    console.log(orderId);
+
+    if (!orderId) {
+        return res.send('Error saving order, try again');
+    }
+
+    let didItemOrderError = false;
+    const itemOrderPromises = cartArray.map(itemorder => {
+        const {productId, quantity, unitPrice, subTotal} = itemorder
+
+        const newItemOrder = new Itemorder({
+            orderId: orderId, 
+            productId: productId,
+            quantity: quantity,
+            unitPrice: unitPrice,
+            subTotal: subTotal
+        });
+
+        return newItemOrder.save().then((itemOrder, err) =>{
+            if (err) {
+                didItemOrderError = true;
+            }
+        })
+
+    })
+    
+
+
+    return Promise.all(itemOrderPromises).then(values => {
+        if (didItemOrderError) {
+            res.send('Error when saving item orders')
+        }
+
+        User.findByIdAndUpdate(userId, {
+            cartValue: 0,
+            cart: []
+        }).then((foundUser, err) => {
+            if (err) {
+                return res.send(err);
+            }
+
+            res.send(true);
+        })
+    })
+
+
+
+
+
+    // Push cart items to itemorder
+    // push order number to order
 
 
 

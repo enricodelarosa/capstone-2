@@ -82,7 +82,7 @@ module.exports.verifyAdmin = (req, res, next) => {
 
 
 module.exports.getUserIdFromToken = (req, res, next) => {
-    const userId = auth.decode(req.headers.authorization).id
+    const userId = auth.decode(req.headers.authorization).userId
 
     req.body.userIdFromToken = userId;
 

@@ -37,11 +37,15 @@ mongoose.connect(dbURL,
 // Propmpts a message once connected
 mongoose.connection.once('open', () => console.log(`Now connected to Dela Rosa-Mongo DB Atlas.`));
 
-const userRouter = require('./routes/userRoutes.js')
-const productRouter = require('./routes/productRoutes.js')
+const userRouter = require('./routes/userRoutes.js');
+const productRouter = require('./routes/productRoutes.js');
+const orderRouter = require('./routes/orderRoutes.js');
+const itemorderRouter = require('./routes/itemorderRoutes.js');
 
 app.use("/users", userRouter);
 app.use("/products", productRouter);
+app.use("/orders", orderRouter)
+app.use("/orderitems", itemorderRouter)
 
 app.listen(port, () => {
 	console.log(`API is now online on port ${port}`);
