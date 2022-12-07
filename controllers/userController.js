@@ -339,28 +339,22 @@ module.exports.getUserOrders = async (req, res) => {
     })
 
 
-    
+}
 
+module.exports.adminToggle = (req, res) => {
+    const targetUserId = req.params.id;
+    const isAdmin = req.query.isAdmin;
 
+    if (typeof isAdmin == 'undefined') {
+        return res.send('No query sent');
+    }
 
-    // The orderitems table was created so that items can be shipped separately especially if they're from different sellers.
-
-    // To get orderitems, we use all orderids returned by the request and we create an array with objects that have the following properties:
-    // 1. OrderId
-    // 2. orderitems
-    // 3. CreatedOn
-    // 4. TotalAmount
-    /*
-        Ex. [{
-            OrderId: 1,
-            orderitems: [{}, {}, {}],
-            totalAmount: 2343.00
-            createdOn: sample date
-        },
-        {
-            OrderId: 2
+    return User.findByIdAndUpdate(targetUserId, {isAdmin: isAdmin}).then((foundUser, err) => {
+        if (err) {
+            return res.send(false);
         }
-        ]
-    */
-        
+
+        res.send({isAdmin: isAdmin});
+    })
+
 }

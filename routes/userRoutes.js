@@ -8,6 +8,8 @@ userRouter.post('/register', userController.checkDuplicateEmail, userController.
 
 userRouter.post('/login', userController.login);
 
+
+
 userRouter.post('/cart', auth.verify,auth.getUserIdFromToken, userController.addToCart, userController.updateCartValue);
 
 userRouter.delete('/cart/:id', auth.verify,auth.getUserIdFromToken, userController.removeFromCart, userController.updateCartValue);
@@ -21,6 +23,7 @@ userRouter.get('/orders', auth.verify,auth.getUserIdFromToken, userController.ge
 
 userRouter.get('/:id', userController.getDetails);
 
+userRouter.patch('/:id',auth.verify, auth.verifyAdmin, userController.adminToggle);
 
 
 module.exports = userRouter;
