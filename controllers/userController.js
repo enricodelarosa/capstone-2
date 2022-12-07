@@ -346,7 +346,7 @@ module.exports.adminToggle = (req, res) => {
     const isAdmin = req.query.isAdmin;
 
     if (typeof isAdmin == 'undefined') {
-        return res.send('No query sent');
+        return res.status(400).send('No query sent');
     }
 
     return User.findByIdAndUpdate(targetUserId, {isAdmin: isAdmin}).then((foundUser, err) => {

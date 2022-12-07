@@ -175,6 +175,39 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Get User Orders",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "User isAdmin toggle",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "localhost:5001/users/638f38d0992f9898d043564b?isAdmin=1",
+							"host": [
+								"localhost"
+							],
+							"port": "5001",
+							"path": [
+								"users",
+								"638f38d0992f9898d043564b"
+							],
+							"query": [
+								{
+									"key": "isAdmin",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
