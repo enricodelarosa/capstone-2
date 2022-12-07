@@ -30,9 +30,6 @@ module.exports.verify = (req, res, next) => {
     if (typeof token !== "undefined ") {
         //console.log(token);
 
-        console.log(token);
-        
-        // remove first 7 characters (Bearer) from the token
 
         return jwt.verify(token, secret, (error, data) => {
             if (error) {

@@ -158,6 +158,8 @@ module.exports.removeFromCart = (req, res, next) => {
         
         user.cart.pull({productId: productId});
 
+        // We could make this more complicated and check if this productId exits in the cart but not super necessary as this is removal
+
         return user.save().then((user, err) => {
             if (err) {
                 return res.send(false);
@@ -178,6 +180,7 @@ module.exports.updateCartItem = async (req, res, next) => {
     const quantity = req.query.quantity;
 
     const unitPrice = await Product.findById(productId).then(product => {
+        
         return product.price;
     })
 
@@ -198,7 +201,12 @@ module.exports.updateCartItem = async (req, res, next) => {
             "cart.$.subTotal": quantity * unitPrice
         }
     }).then((foundUser, err) => {
+        
         if (err) {
+            return res.send(false);
+        }
+
+        if (!foundUser.length) {
             return res.send(false);
         }
 
