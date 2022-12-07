@@ -1,7 +1,7 @@
 const User = require("../models/user.js");
 const Product = require("../models/product.js");
 const Order = require("../models/order.js");
-const Itemorder = require("../models/itemorder.js");
+const Orderitem = require("../models/orderitem.js");
 const bcrypt = require("bcrypt");
 const auth = require('../utils/auth.js');
 
@@ -107,8 +107,8 @@ module.exports.addToCart = async (req, res, next) => {
 
     return User.findById(userId).then(user => {
  
-        const isAlreadyInCart = user.cart.find(itemorder => {
-            return itemorder.productId == productId;
+        const isAlreadyInCart = user.cart.find(orderitem => {
+            return orderitem.productId == productId;
         })
 
         if (isAlreadyInCart) {
@@ -212,8 +212,8 @@ module.exports.updateCartValue = async (req, res)=> {
         return user.cart;
     })
 
-    const newCartValue = cartArray.reduce((total,itemOrder) => {
-        return total + Number(itemOrder.subTotal);
+    const newCartValue = cartArray.reduce((total,orderItem) => {
+        return total + Number(orderItem.subTotal);
         
 
     }, 0)
@@ -262,11 +262,11 @@ module.exports.checkout = async(req, res) => {
         return res.send('Error saving order, try again');
     }
 
-    let didItemOrderError = false;
-    const itemOrderPromises = cartArray.map(itemorder => {
-        const {productId, quantity, unitPrice, subTotal} = itemorder
+    let didOrderItemError = false;
+    const orderItemPromises = cartArray.map(orderitem => {
+        const {productId, quantity, unitPrice, subTotal} = orderitem
 
-        const newItemOrder = new Itemorder({
+        const newOrderItem = new Orderitem({
             orderId: orderId, 
             productId: productId,
             quantity: quantity,
@@ -274,9 +274,9 @@ module.exports.checkout = async(req, res) => {
             subTotal: subTotal
         });
 
-        return newItemOrder.save().then((itemOrder, err) =>{
+        return newOrderItem.save().then((orderitem, err) =>{
             if (err) {
-                didItemOrderError = true;
+                didOrderItemError = true;
             }
         })
 
@@ -284,8 +284,8 @@ module.exports.checkout = async(req, res) => {
     
 
 
-    return Promise.all(itemOrderPromises).then(values => {
-        if (didItemOrderError) {
+    return Promise.all(orderItemPromises).then(values => {
+        if (didOrderItemError) {
             res.send('Error when saving item orders')
         }
 
@@ -301,30 +301,36 @@ module.exports.checkout = async(req, res) => {
         })
     })
 
-    // Push cart items to itemorder
+    // Push cart items to orderitem
     // push order number to order
 
 
 }
 
-module.exports.getUserOrders = (req, res) => {
+module.exports.getUserOrders = async (req, res) => {
 
     const userId = req.body.userIdFromToken;
 
-    return Order.find({userId: userId}).then(result => {
+    const orders = await Order.find({userId: userId}).then(result => {
         return res.send(result);
     })
-    // The itemorders table was created so that items can be shipped separately especially if they're from different sellers.
+
+    const orderItems = await orders.map(order => {
+        return 
+    })
+
+
+    // The orderitems table was created so that items can be shipped separately especially if they're from different sellers.
 
     // To get orderitems, we use all orderids returned by the request and we create an array with objects that have the following properties:
     // 1. OrderId
-    // 2. OrderItems
+    // 2. orderitems
     // 3. CreatedOn
     // 4. TotalAmount
     /*
         Ex. [{
             OrderId: 1,
-            OrderItems: [{}, {}, {}],
+            orderitems: [{}, {}, {}],
             totalAmount: 2343.00
             createdOn: sample date
         },

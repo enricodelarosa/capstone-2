@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const itemorderSchema = new mongoose.Schema({
+const orderitemSchema = new mongoose.Schema({
     orderId: {
         type: String,
         required: [true, 'Order Id is required']
@@ -28,4 +28,4 @@ const itemorderSchema = new mongoose.Schema({
 
 
 // Model name      //Schema name
-module.exports = mongoose.model("Itemorder", itemorderSchema);
+module.exports = mongoose.model("Orderitem", orderitemSchema);
