@@ -5,6 +5,10 @@ const orderitemSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Order Id is required']
     },
+    name: {
+        type: String,
+        required: [true, 'Product name is required']
+    },
     productId: {
         type: String,
         required: [true, 'Product Id is required']

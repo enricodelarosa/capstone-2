@@ -76,6 +76,14 @@ module.exports.login = (req, res) => {
 module.exports.getDetails = (req, res) => {
     const userId = req.params.id;
 
+    console.log(userId == null);
+    console.log(typeof userId);
+    console.log(userId);
+    
+    if (userId == 'null') {
+        return res.status(400).send(false);
+    }
+
     
 
     return User.findById(userId).then(result => {
@@ -87,12 +95,20 @@ module.exports.getDetails = (req, res) => {
 
 module.exports.addToCart = async (req, res, next) => {
 
+
     //get unit price from product table
     const userId = req.body.userIdFromToken;
+
     const {productId, quantity} = req.body;
 
-    const unitPrice = await Product.findById(productId).then(product => {
-        return product.price;
+    console.log(req.body.productId);
+    console.log(req.body.quantity);
+
+    const {name, unitPrice} = await Product.findById(productId).then(product => {
+        return {
+            unitPrice: product.price,
+            name: product.name
+        };
     })
 
     if (!unitPrice) {
@@ -105,6 +121,7 @@ module.exports.addToCart = async (req, res, next) => {
     } 
 
     const addToCart = {
+        name: name,
         productId: productId,
         quantity: quantity,
         unitPrice: unitPrice,
@@ -119,7 +136,7 @@ module.exports.addToCart = async (req, res, next) => {
         })
 
         if (isAlreadyInCart) {
-            return res.send("Item already in cart");
+            return res.status(400).send({success: false, error: "Item already in cart"});
         }
 
 
@@ -161,7 +178,7 @@ module.exports.removeFromCart = (req, res, next) => {
 
         return user.save().then((user, err) => {
             if (err) {
-                return res.send(false);
+                return res.status(400).send({success: false});
             }
 
             next();
@@ -241,7 +258,7 @@ module.exports.updateCartValue = async (req, res)=> {
             return res.send(false);
         }
 
-        res.send(true);
+        res.status(200).send({success: true});
     })
 
 }
