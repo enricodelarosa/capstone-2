@@ -59,7 +59,7 @@ module.exports.login = (req, res) => {
         const isPasswordCorrect = bcrypt.compareSync(password, result.password);
 
         if (!isPasswordCorrect) {
-            return res.send(false);
+            return res.status(400).send(false);
         }
 
         const expiration = 172800000; //2 days
@@ -69,8 +69,7 @@ module.exports.login = (req, res) => {
             httpOnly: true
         })
 
-        return res.send('access granted');
-        return res.send({access: auth.createAccessToken(result)});
+        return res.status(200).send({access: auth.createAccessToken(result)});
     })
 }
 
