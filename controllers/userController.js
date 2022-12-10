@@ -5,6 +5,7 @@ const Orderitem = require("../models/orderitem.js");
 const bcrypt = require("bcrypt");
 const auth = require('../utils/auth.js');
 
+
 // Untested
 
 
@@ -63,22 +64,24 @@ module.exports.login = (req, res) => {
         }
 
         const expiration = 172800000; //2 days
-        const cookie =  res.cookie('token',auth.createAccessToken(result), {
+        const token = auth.createAccessToken(result);
+        const cookie =  res.cookie('token',token, {
             expires: new Date(Date.now() + expiration),
             secure: false, //set to ture if using https,
             httpOnly: true
         })
 
-        return res.status(200).send({access: auth.createAccessToken(result)});
+
+
+        return res.status(200).send({success: true});
     })
 }
 
 module.exports.getDetails = (req, res) => {
     const userId = req.params.id;
 
-    console.log(userId == null);
-    console.log(typeof userId);
     console.log(userId);
+    console.log(userId == 'null')
     
     if (userId == 'null') {
         return res.status(400).send(false);
@@ -195,6 +198,10 @@ module.exports.updateCartItem = async (req, res, next) => {
 
     const quantity = req.query.quantity;
 
+    if (quantity <= 0) {
+        return res.status(400).send({success: false, error: 'quantity cannot be less than or equal to zero.'})
+    }
+
     const unitPrice = await Product.findById(productId).then(product => {
         
         return product.price;
@@ -216,14 +223,15 @@ module.exports.updateCartItem = async (req, res, next) => {
             "cart.$.unitPrice": unitPrice,
             "cart.$.subTotal": quantity * unitPrice
         }
-    }).then((foundUser, err) => {
+    }).then((returnObj, err) => {
         
         if (err) {
-            return res.send(false);
+            return res.status(500).send({success: false});
         }
 
-        if (!foundUser.length) {
-            return res.send(false);
+
+        if (!returnObj.acknowledged) {
+            return res.status(400).send({success: false});
         }
 
 
@@ -266,9 +274,15 @@ module.exports.updateCartValue = async (req, res)=> {
 module.exports.checkout = async(req, res) => {
     const userId = req.body.userIdFromToken;
 
+    console.log(userId);
+
     const [cartArray, cartValue]  = await User.findById(userId).then(user => {
         return [user.cart, user.cartValue];
     })
+
+    if (!cartValue || cartArray.length == 0) {
+        return res.status(400).send({success: false, error: 'no items in cart.'})
+    }
 
     const newOrder = new Order({
         userId: userId,
@@ -291,14 +305,15 @@ module.exports.checkout = async(req, res) => {
     console.log(orderId);
 
     if (!orderId) {
-        return res.send('Error saving order, try again');
+        return res.status(500).send({success: false, error:'Error saving order, try again'});
     }
 
     let didOrderItemError = false;
     const orderItemPromises = cartArray.map(orderitem => {
-        const {productId, quantity, unitPrice, subTotal} = orderitem
+        const {productId,name, quantity, unitPrice, subTotal} = orderitem
 
         const newOrderItem = new Orderitem({
+            name, name,
             orderId: orderId, 
             productId: productId,
             quantity: quantity,
@@ -318,7 +333,7 @@ module.exports.checkout = async(req, res) => {
 
     return Promise.all(orderItemPromises).then(values => {
         if (didOrderItemError) {
-            res.send('Error when saving item orders')
+            res.status(500).send({success: false, error:'Error when saving item orders'})
         }
 
         User.findByIdAndUpdate(userId, {
@@ -326,10 +341,10 @@ module.exports.checkout = async(req, res) => {
             cart: []
         }).then((foundUser, err) => {
             if (err) {
-                return res.send(err);
+                return res.status(500).send({success: false, error:'Error when saving item orders'});
             }
 
-            res.send(true);
+            res.status(200).send({success: true});
         })
     })
 
@@ -390,3 +405,5 @@ module.exports.adminToggle = (req, res) => {
     })
 
 }
+
+

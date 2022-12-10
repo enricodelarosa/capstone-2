@@ -23,30 +23,22 @@ module.exports.verify = (req, res, next) => {
 
     let token = req.cookies.token || '';
 
-    if (!token) {
-        return res.send('Please log-in to perform operation.')
+    if (token == '') {
+        return res.send({success: false, loginRequired: true})
     }
 
-    if (typeof token !== "undefined ") {
-        //console.log(token);
-
-
-        return jwt.verify(token, secret, (error, data) => {
-            if (error) {
+    return jwt.verify(token, secret, (error, data) => {
+        if (error) {
                 return res.send({auth: "Failed"});
-            } else {
-                req.body.user = {
-                    userId: data.userId,
-                    isAdmin: data.isAdmin
-                }
-
-                next();
+        } else {
+             req.body.user = {
+                userId: data.userId,
+                isAdmin: data.isAdmin
             }
-        });
 
-    } else {
-        return null;
-    }
+             next();
+        }
+    });
 
 }
 
@@ -91,6 +83,39 @@ module.exports.getUserIdFromToken = (req, res, next) => {
 
     next();
 
+}
+
+module.exports.isUserLoggedIn = (req, res, next) => {
+    let token = req.cookies.token || '';
+
+    if (token.length <= 0) {
+        return res.send({LoggedIn : false})
+    }
+
+    return jwt.verify(token, secret, (error, data) => {
+        if (error) {
+            return res.send({LoggedIn : false});
+        } 
+
+        console.log(token);
+
+        const payload = jwt.decode(token, {complete: true}).payload;
+
+        return res.send({LoggedIn : true, user: payload})
+    
+
+
+    });
+}
+
+module.exports.logout = (req, res, next) => {
+    const cokkie = res.cookie('token', 'none', {
+        expires: new Date(Date.now() + 5 * 1000),
+        secure: false, //set to ture if using https,
+        httpOnly: true,
+    })
+
+    res.status(200).send({success: true});
 }
 
 

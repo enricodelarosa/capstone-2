@@ -25,5 +25,9 @@ userRouter.get('/:id', userController.getDetails);
 
 userRouter.patch('/:id',auth.verify, auth.verifyAdmin, userController.adminToggle);
 
+userRouter.post('/auth', auth.isUserLoggedIn);
+
+userRouter.post('/logout', auth.logout);
+
 
 module.exports = userRouter;
