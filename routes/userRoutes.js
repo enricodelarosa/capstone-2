@@ -16,7 +16,7 @@ userRouter.delete('/cart/:id', auth.verify,auth.verifyNotAdmin,auth.getUserIdFro
 
 userRouter.patch('/cart/:id', auth.verify,auth.verifyNotAdmin,auth.getUserIdFromToken, userController.updateCartItem, userController.updateCartValue);
 
-userRouter.post('/cart/checkout', auth.verifyNotAdmin,auth.verify,auth.getUserIdFromToken, userController.checkout)
+userRouter.post('/cart/checkout',auth.verify, auth.verifyNotAdmin,auth.getUserIdFromToken, userController.checkout)
 
 userRouter.get('/orders', auth.verify,auth.getUserIdFromToken, userController.getUserOrders);
 
