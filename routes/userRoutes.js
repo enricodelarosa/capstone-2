@@ -21,13 +21,15 @@ userRouter.post('/cart/checkout', auth.verifyNotAdmin,auth.verify,auth.getUserId
 userRouter.get('/orders', auth.verify,auth.getUserIdFromToken, userController.getUserOrders);
 
 
-userRouter.get('/:id', userController.getDetails);
+userRouter.get('/',auth.verify,auth.getUserIdFromToken, userController.getDetails);
 
 userRouter.patch('/:id',auth.verify, auth.verifyAdmin, userController.adminToggle);
 
 userRouter.post('/auth', auth.isUserLoggedIn);
 
 userRouter.post('/logout', auth.logout);
+
+userRouter.get('/:id',auth.verify,auth.getUserIdFromToken, userController.getDetailsUsingApp);
 
 
 module.exports = userRouter;

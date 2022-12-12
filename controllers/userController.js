@@ -78,6 +78,25 @@ module.exports.login = (req, res) => {
 }
 
 module.exports.getDetails = (req, res) => {
+    const userId = req.body.userIdFromToken;
+
+    console.log(userId);
+    console.log(userId == 'null')
+    
+    if (userId == 'null') {
+        return res.status(400).send(false);
+    }
+
+    
+
+    return User.findById(userId).then(result => {
+        result.password = '';
+        
+        return res.send(result);
+    })
+}
+
+module.exports.getDetailsUsingApp = (req, res) => {
     const userId = req.params.id;
 
     console.log(userId);
