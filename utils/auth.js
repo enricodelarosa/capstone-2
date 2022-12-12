@@ -74,7 +74,7 @@ module.exports.verifyAdmin = (req, res, next) => {
 
 }
 
-module.exports.verifyNotAdmin = (req, res, nest) => {
+module.exports.verifyNotAdmin = (req, res, next) => {
     const isAdmin = req.body.user.isAdmin;
 
     if (isAdmin) {
