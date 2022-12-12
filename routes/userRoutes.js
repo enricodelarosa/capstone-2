@@ -10,13 +10,13 @@ userRouter.post('/login', userController.login);
 
 
 
-userRouter.post('/cart', auth.verify,auth.getUserIdFromToken, userController.addToCart, userController.updateCartValue);
+userRouter.post('/cart', auth.verify,auth.verifyNotAdmin, auth.getUserIdFromToken, userController.addToCart, userController.updateCartValue);
 
-userRouter.delete('/cart/:id', auth.verify,auth.getUserIdFromToken, userController.removeFromCart, userController.updateCartValue);
+userRouter.delete('/cart/:id', auth.verify,auth.verifyNotAdmin,auth.getUserIdFromToken, userController.removeFromCart, userController.updateCartValue);
 
-userRouter.patch('/cart/:id', auth.verify,auth.getUserIdFromToken, userController.updateCartItem, userController.updateCartValue);
+userRouter.patch('/cart/:id', auth.verify,auth.verifyNotAdmin,auth.getUserIdFromToken, userController.updateCartItem, userController.updateCartValue);
 
-userRouter.post('/cart/checkout', auth.verify,auth.getUserIdFromToken, userController.checkout)
+userRouter.post('/cart/checkout', auth.verifyNotAdmin,auth.verify,auth.getUserIdFromToken, userController.checkout)
 
 userRouter.get('/orders', auth.verify,auth.getUserIdFromToken, userController.getUserOrders);
 

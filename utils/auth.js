@@ -74,6 +74,19 @@ module.exports.verifyAdmin = (req, res, next) => {
 
 }
 
+module.exports.verifyNotAdmin = (req, res, nest) => {
+    const isAdmin = req.body.user.isAdmin;
+
+    if (isAdmin) {
+        return res.send({success: false, error: 'User must be non-admin to use cart and place orders.'});
+    }
+
+    // req.body.newData = newData;
+
+    next();
+
+}
+
 
 
 module.exports.getUserIdFromToken = (req, res, next) => {
