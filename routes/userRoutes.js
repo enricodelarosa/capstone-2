@@ -18,7 +18,7 @@ userRouter.patch('/cart/:id', auth.verify,auth.verifyNotAdmin,auth.getUserIdFrom
 
 userRouter.post('/cart/checkout',auth.verify, auth.verifyNotAdmin,auth.getUserIdFromToken, userController.checkout)
 
-userRouter.get('/orders', auth.verify,auth.getUserIdFromToken, userController.getUserOrders);
+userRouter.get('/orders', auth.verify,auth.verifyNotAdmin,auth.getUserIdFromToken, userController.getUserOrders);
 
 
 userRouter.get('/',auth.verify,auth.getUserIdFromToken, userController.getDetails);
