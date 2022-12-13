@@ -36,6 +36,12 @@ module.exports.getAllProducts = (req, res) => {
     })
 }
 
+module.exports.getAllProductsAdmin = (req, res) => {
+    return Product.find({}).then(result => {
+        return res.send(result);
+    })
+}
+
 module.exports.getProductById = (req, res) => {
     const productId = req.params.id; 
 
