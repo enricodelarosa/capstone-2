@@ -27,9 +27,9 @@ module.exports.register = (req ,res) => {
 
 	return newUser.save().then((user, error) => {
 		if (error) {
-			return res.send(false);
+			return res.status(400).send(false);
 		} else {
-			return res.send(true);
+			return res.status(200).send(true);
 		}
 	})
 
@@ -40,7 +40,7 @@ module.exports.register = (req ,res) => {
 module.exports.checkDuplicateEmail = (req, res, next) => {
     return User.find({email: req.body.email}).then(result => {
 		if (result.length > 0) {
-			return res.send('Email is already registered');
+			return res.send(false);
 		} else {
 			return next();
 		}
@@ -63,17 +63,17 @@ module.exports.login = (req, res) => {
             return res.status(400).send(false);
         }
 
-        const expiration = 172800000; //2 days
+        // const expiration = 172800000; //2 days
         const token = auth.createAccessToken(result);
-        const cookie =  res.cookie('token',token, {
-            expires: new Date(Date.now() + expiration),
-            secure: false, //set to ture if using https,
-            httpOnly: true
-        })
+        // const cookie =  res.cookie('token',token, {
+        //     expires: new Date(Date.now() + expiration),
+        //     secure: false, //set to ture if using https,
+        //     httpOnly: true
+        // })
 
 
 
-        return res.status(200).send({success: true});
+        return res.status(200).send({access: token});
     })
 }
 
@@ -425,4 +425,31 @@ module.exports.adminToggle = (req, res) => {
 
 }
 
+module.exports.getProfile = (req, res) => {
+    // const userData = auth.decode(req.headers.authorization);
 
+    // console.log(userData); 
+
+    // console.log(req.headers.authorization);
+
+    console.log('int get profile')
+
+    console.log(req.body.user);
+
+
+
+    console.log(req.body.user.userId);
+
+    return User.findById(req.body.user.userId).then(result => {
+        console.log(result);
+
+        if (result == null) {
+            return res.send(false);
+        } else {
+            result.password = "*****"
+            return res.send(result);
+        }
+    });
+
+
+}

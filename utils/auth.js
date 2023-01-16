@@ -21,7 +21,15 @@ module.exports.verify = (req, res, next) => {
 
     //GEt JWT (JSON Web Token) from postman 
 
-    let token = req.cookies.token || '';
+    // let token = req.cookies.token || '';
+
+    // let token = req.headers.authorization.split(' ')[1].split('.')[1];
+
+    let token = req.headers.authorization.split(' ')[1];
+
+
+    console.log(token);
+
 
     if (token == '') {
         return res.send({success: false, loginRequired: true})
@@ -35,6 +43,8 @@ module.exports.verify = (req, res, next) => {
                 userId: data.userId,
                 isAdmin: data.isAdmin
             }
+
+            console.log('success');
 
              next();
         }

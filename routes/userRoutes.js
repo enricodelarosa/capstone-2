@@ -29,7 +29,11 @@ userRouter.post('/auth', auth.isUserLoggedIn);
 
 userRouter.post('/logout', auth.logout);
 
+userRouter.get("/details", auth.verify, userController.getProfile);
+
 userRouter.get('/:id',auth.verify,auth.getUserIdFromToken, userController.getDetailsUsingApp);
+
+
 
 
 module.exports = userRouter;
