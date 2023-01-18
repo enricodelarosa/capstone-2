@@ -3,9 +3,9 @@ const Product = require("../models/product.js");
 
 
 module.exports.createProduct = (req, res) => {
-    const {name, description, price} = req.body;
+    const {name, description, price, stock, isActive} = req.body;
 
-    if (!name || !description || !price) {
+    if (!name || !description || !price || stock.length == 0) {
         return res.status(400).send('Missing product information.');;
     }
     
@@ -14,15 +14,17 @@ module.exports.createProduct = (req, res) => {
     let newProduct = new Product({
         name: name,
         description: description,
-        price: price
+        price: price,
+        stock: stock,
+        isActive
     });
 
     return newProduct.save().then((product, err) => {
         if (err) {
-            return res.send(false);
+            return res.send({success: false});
         }
 
-        return res.send(true);
+        return res.send({success: true, id: product._id});
     })
     
 
@@ -52,24 +54,26 @@ module.exports.getProductById = (req, res) => {
 
 module.exports.updateProduct = (req, res) => {
     const productId = req.params.id; 
-    const {name, description, price} = req.body;
+    const {name, description, price, stock, isActive} = req.body;
 
-    if (!name || !description || !price) {
+    if (!name || !description || !price || stock.length == 0) {
         return res.staus(400).send('Missing required details');
     }
 
     const productUpdates = {
         name: name,
         description: description,
-        price: price
+        price: price,
+        stock,
+        isActive
     }
 
     return Product.findByIdAndUpdate(productId,productUpdates, (err, foundProduct) => {
         if (err) {
-            return res.send(false);
+            return res.send({sucess: false});
         }
 
-        return res.send(productUpdates);
+        return res.send({success: true, id: productId});
         
     })
 

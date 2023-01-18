@@ -117,25 +117,29 @@ module.exports.getDetailsUsingApp = (req, res) => {
 
 module.exports.addToCart = async (req, res, next) => {
 
-
+    console.log('hit add to cart route')
     //get unit price from product table
     const userId = req.body.userIdFromToken;
 
+    console.log('userId',userId);
+
     const {productId, quantity} = req.body;
+
+    console.log(req.body);
 
     console.log(req.body.productId);
     console.log(req.body.quantity);
 
-    const {name, unitPrice} = await Product.findById(productId).then(product => {
-        return {
-            unitPrice: product.price,
-            name: product.name
-        };
-    })
+    // const {name, unitPrice} = await Product.findById(productId).then(product => {
+    //     return {
+    //         unitPrice: product.price,
+    //         name: product.name
+    //     };
+    // })
 
-    if (!unitPrice) {
-        return res.send('Product Id does not exit');
-    } 
+    // if (!unitPrice) {
+    //     return res.send('Product Id does not exit');
+    // } 
 
     
     if (!productId || !quantity) {
@@ -143,11 +147,11 @@ module.exports.addToCart = async (req, res, next) => {
     } 
 
     const addToCart = {
-        name: name,
+        // name: name,
         productId: productId,
         quantity: quantity,
-        unitPrice: unitPrice,
-        subTotal: quantity * unitPrice
+        // unitPrice: unitPrice,
+        // subTotal: quantity * unitPrice
     }
 
 
@@ -170,7 +174,7 @@ module.exports.addToCart = async (req, res, next) => {
                 return res.send(false);
             }
 
-            next();
+            return res.send({success: true})
             
         })
     })
@@ -203,7 +207,7 @@ module.exports.removeFromCart = (req, res, next) => {
                 return res.status(400).send({success: false});
             }
 
-            next();
+            return res.send({success: true})
             
         })
 
@@ -212,6 +216,8 @@ module.exports.removeFromCart = (req, res, next) => {
 }
 
 module.exports.updateCartItem = async (req, res, next) => {
+
+    console.log('hit update cart route')
     const userId = req.body.userIdFromToken;
     const productId = req.params.id;
 
@@ -239,8 +245,8 @@ module.exports.updateCartItem = async (req, res, next) => {
         {_id: userId,"cart.productId": productId},
         {$set: {
             "cart.$.quantity": quantity,
-            "cart.$.unitPrice": unitPrice,
-            "cart.$.subTotal": quantity * unitPrice
+            // "cart.$.unitPrice": unitPrice,
+            // "cart.$.subTotal": quantity * unitPrice
         }
     }).then((returnObj, err) => {
         
@@ -254,7 +260,7 @@ module.exports.updateCartItem = async (req, res, next) => {
         }
 
 
-        next();
+        return res.send({success: true});
     })
 
 }
@@ -295,12 +301,53 @@ module.exports.checkout = async(req, res) => {
 
     console.log(userId);
 
-    const [cartArray, cartValue]  = await User.findById(userId).then(user => {
-        return [user.cart, user.cartValue];
+    const cartArray = await User.findById(userId).then(user => {
+        return user.cart;
     })
 
-    if (!cartValue || cartArray.length == 0) {
-        return res.status(400).send({success: false, error: 'no items in cart.'})
+    let newCart = [];
+
+    for (let cartItem of cartArray) {
+        newCart.push(
+            Product.findById(cartItem.productId).then(result => {
+
+            const objToPush = {
+                productId : result._id,
+                name: result.name,
+                quantity: cartItem.quantity,
+                unitPrice: result.price,
+                subTotal: cartItem.quantity * result.price
+            }
+
+            return objToPush
+            })
+        )
+
+    }
+
+    let cartValue = 0;
+    console.log(newCart);
+
+    const finalCart = await Promise.all(newCart).then(values => {
+        const computedCartValue = values.reduce((total,orderItem) => {
+            return total + Number(orderItem.subTotal);
+            
+    
+        }, 0)
+
+        cartValue = computedCartValue;
+        
+        return values;
+    })
+
+    console.log(cartValue);
+    console.log(finalCart);
+
+
+
+
+    if (cartValue === 0 || finalCart.length == 0) {
+        return res.status(400).send({success: false, errorHeading: 'No items in cart.', errorMessage: "Please add an item to your cart before checking out."})
     }
 
     const newOrder = new Order({
@@ -328,7 +375,7 @@ module.exports.checkout = async(req, res) => {
     }
 
     let didOrderItemError = false;
-    const orderItemPromises = cartArray.map(orderitem => {
+    const orderItemPromises = finalCart.map(orderitem => {
         const {productId,name, quantity, unitPrice, subTotal} = orderitem
 
         const newOrderItem = new Orderitem({
@@ -363,7 +410,7 @@ module.exports.checkout = async(req, res) => {
                 return res.status(500).send({success: false, error:'Error when saving item orders'});
             }
 
-            res.status(200).send({success: true});
+            res.status(200).send({success: true, orderId: orderId});
         })
     })
 
@@ -377,7 +424,7 @@ module.exports.getUserOrders = async (req, res) => {
 
     const userId = req.body.userIdFromToken;
 
-    const orders = await Order.find({userId: userId}).then(result => {
+    const orders = await Order.find({userId: userId}).sort('-purchasedOn').then(result => {
         return result
     })
 
@@ -425,31 +472,60 @@ module.exports.adminToggle = (req, res) => {
 
 }
 
-module.exports.getProfile = (req, res) => {
+module.exports.getProfile = async (req, res) => {
     // const userData = auth.decode(req.headers.authorization);
 
     // console.log(userData); 
 
     // console.log(req.headers.authorization);
 
-    console.log('int get profile')
-
-    console.log(req.body.user);
-
-
-
-    console.log(req.body.user.userId);
-
-    return User.findById(req.body.user.userId).then(result => {
+    const user = await User.findById(req.body.user.userId).then(result => {
         console.log(result);
 
         if (result == null) {
-            return res.send(false);
+            return false;
         } else {
             result.password = "*****"
-            return res.send(result);
+
+
+
+            return result;
         }
     });
+
+    const newCart = [];
+
+    for (let cartItem of user.cart) {
+        newCart.push(Product.findById(cartItem.productId).then(result => {
+
+            const objToPush = {
+                productId : result._id,
+                name: result.name,
+                quantity: cartItem.quantity,
+                price: result.price,
+                subTotal: cartItem.quantity * result.price
+            }
+
+            return objToPush
+        }))
+
+    }
+
+
+    return Promise.all(newCart).then(values => {
+        const cartValue = values.reduce((total,orderItem) => {
+            return total + Number(orderItem.subTotal);
+            
+    
+        }, 0)
+        
+        const newUser = {
+            ...user._doc,
+            cart: values,
+            cartValue
+        }
+        return res.send(newUser)
+    })
 
 
 }
