@@ -28,7 +28,7 @@ module.exports.verify = (req, res, next) => {
     let token = req.headers.authorization.split(' ')[1];
 
 
-    console.log(token);
+    //console.log(token);
 
 
     if (token == '') {
@@ -44,7 +44,7 @@ module.exports.verify = (req, res, next) => {
                 isAdmin: data.isAdmin
             }
 
-            console.log('success');
+            //console.log('success');
 
              next();
         }

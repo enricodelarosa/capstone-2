@@ -480,7 +480,7 @@ module.exports.getProfile = async (req, res) => {
     // console.log(req.headers.authorization);
 
     const user = await User.findById(req.body.user.userId).then(result => {
-        console.log(result);
+        //console.log(result);
 
         if (result == null) {
             return false;
