@@ -1,3 +1,4 @@
 node_modules
 #.env including .env for checking of instructor
 #app include app
+.env
