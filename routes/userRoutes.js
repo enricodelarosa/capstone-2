@@ -6,7 +6,11 @@ const userController = require('../controllers/userController.js');
 
 userRouter.post('/register', userController.checkDuplicateEmail, userController.register);
 
+userRouter.post('/registeradmin', auth.verify, auth.verifySuperAdmin, userController.checkDuplicateEmail, userController.registerAdmin);
+
 userRouter.post('/login', userController.login);
+
+userRouter.get('/all', auth.verify, auth.verifySuperAdmin, userController.getAll)
 
 
 
@@ -25,7 +29,7 @@ userRouter.get('/orders', auth.verify,auth.verifyNotAdmin,auth.getUserIdFromToke
 
 userRouter.get('/',auth.verify,auth.getUserIdFromToken, userController.getDetails);
 
-userRouter.patch('/:id',auth.verify, auth.verifyAdmin, userController.adminToggle);
+userRouter.patch('/:id',auth.verify, auth.verifySuperAdmin, userController.adminToggle);
 
 userRouter.post('/auth', auth.isUserLoggedIn);
 

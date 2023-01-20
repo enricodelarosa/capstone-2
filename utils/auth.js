@@ -10,7 +10,8 @@ module.exports.createAccessToken = user => {
 	const data = {
 		userId: user._id,
 		email: user.email,
-		isAdmin: user.isAdmin
+		isAdmin: user.isAdmin,
+        isSuperAdmin: user.isSuperAdmin
 	}
 
 	return jwt.sign(data, secret, {expiresIn:'2d'});
@@ -24,6 +25,10 @@ module.exports.verify = (req, res, next) => {
     // let token = req.cookies.token || '';
 
     // let token = req.headers.authorization.split(' ')[1].split('.')[1];
+
+    if (req.headers.authorization == null) {
+        return res.send({auth: "Failed. No Authorization Header."});
+    } 
 
     let token = req.headers.authorization.split(' ')[1];
 
@@ -41,7 +46,8 @@ module.exports.verify = (req, res, next) => {
         } else {
              req.body.user = {
                 userId: data.userId,
-                isAdmin: data.isAdmin
+                isAdmin: data.isAdmin,
+                isSuperAdmin: data.isSuperAdmin
             }
 
             //console.log('success');
@@ -49,6 +55,21 @@ module.exports.verify = (req, res, next) => {
              next();
         }
     });
+
+}
+
+module.exports.verifySuperAdmin = (req, res, next) => {
+
+    const isSuperAdmin = req.body.user.isSuperAdmin
+
+    if (!isSuperAdmin) {
+        return res.send('User must be Super Admin to access this.');
+    }
+
+    // req.body.newData = newData;
+
+    next();
+
 
 }
 

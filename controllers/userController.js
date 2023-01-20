@@ -10,7 +10,7 @@ const auth = require('../utils/auth.js');
 
 
 module.exports.register = (req ,res) => {
-    const {email, password, isAdmin,cart} = req.body
+    const {email, password} = req.body
 
     if (!email || !password) {
         return res.status(400).send('Missing registration detail');
@@ -19,7 +19,8 @@ module.exports.register = (req ,res) => {
 	let newUser = new User({
 		email: email,
 		password: bcrypt.hashSync(password, 10),
-		isAdmin: isAdmin,
+		// isAdmin: isAdmin,
+        // Only superadmin can add admins
 		// bcrypt  package for password hasing
 		// hashSync - syncronously generate a hash
 		// hash - asynchronously generate a hash
@@ -34,6 +35,34 @@ module.exports.register = (req ,res) => {
 	})
 
     
+
+}
+
+module.exports.registerAdmin = (req, res) => {
+
+    const {email, password} = req.body
+
+    if (!email || !password) {
+        return res.status(400).send('Missing registration detail');
+    }
+
+	let newUser = new User({
+		email: email,
+		password: bcrypt.hashSync(password, 10),
+		isAdmin: true,
+        // Only superadmin can add admins
+		// bcrypt  package for password hasing
+		// hashSync - syncronously generate a hash
+		// hash - asynchronously generate a hash
+	});
+
+	return newUser.save().then((user, error) => {
+		if (error) {
+			return res.status(400).send(false);
+		} else {
+			return res.status(200).send(true);
+		}
+	})
 
 }
 
@@ -528,4 +557,11 @@ module.exports.getProfile = async (req, res) => {
     })
 
 
+}
+
+module.exports.getAll = (req, res) => {
+
+    return User.find({isSuperAdmin: false}, '_id email isAdmin').then(result => {
+        res.send(result);
+    })
 }
