@@ -1,15 +1,17 @@
 To Access the web app use the '/' endpoint
 
 
-Login details:
-
+User details:
 buyer1@gmail.com
 quickbrown407
 
-Admin details: 
-
+SuperAdmin details: 
 johndoeadmin@gmail.com
 quickbrown407
+
+Admin details:
+foo@mail.com
+admin
 
 For other functionalities, please refer to the postman collection.
 
