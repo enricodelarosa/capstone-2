@@ -33,7 +33,25 @@ module.exports.createProduct = (req, res) => {
 
 
 module.exports.getAllProducts = (req, res) => {
-    return Product.find({isActive: true}).then(result => {
+
+    console.log(req.query);
+    let sortField = req.query.field;
+    let isAsc = Number(req.query.isAsc);
+
+    if (typeof sortField == 'undefined') {
+        sortField = 'name';
+    
+    }
+
+    if (typeof isAsc == 'undefined') {
+        sortBy = 1;
+    }
+
+    const sortObj = {[sortField]: isAsc}
+
+    console.log(sortObj)
+
+    return Product.find({isActive: true}).sort(sortObj).then(result => {
         return res.send(result);
     })
 }
@@ -44,11 +62,41 @@ module.exports.getAllProductsAdmin = (req, res) => {
     })
 }
 
-module.exports.getProductById = (req, res) => {
+module.exports.getProductById = async (req, res) => {
     const productId = req.params.id; 
 
-    return Product.findById(productId).then(result => {
-        return res.send(result);
+    console.log(req.query);
+    let sortField = req.query.field;
+    let isAsc = Number(req.query.isAsc);
+
+    if (typeof sortField == 'undefined') {
+        sortField = 'name';
+    
+    }
+
+    if (typeof isAsc == 'undefined') {
+        sortBy = 1;
+    }
+
+    const sortObj = {[sortField]: isAsc}
+
+    const mapper = await Product.find({isActive: true}, '_id').sort(sortObj).then(result => {
+        //console.log(map);
+        const mapper = result.map(obj => {
+            return String(obj._id);
+        })
+
+        return mapper;
+    })
+
+    return Product.findById(productId).then(result => { 
+        const prodIndex = mapper.indexOf(productId);
+
+        console.log(prodIndex);
+        return res.send({
+            product: result, 
+            productIdBefore: mapper[Number(prodIndex) - 1],
+            productIdAfter: mapper[Number(prodIndex + 1)]});
     })
 }
 
