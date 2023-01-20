@@ -15,4 +15,6 @@ admin
 
 For other functionalities, please refer to the postman collection.
 
-App deployed on https://capstone-2-69ir.onrender.com/app/
+App deployed on: https://ricomart.enricodelarosa.tech/
+
+Also deployed on https://capstone-2-69ir.onrender.com/app/
