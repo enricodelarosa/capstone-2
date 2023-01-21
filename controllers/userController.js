@@ -170,9 +170,12 @@ module.exports.addToCart = async (req, res, next) => {
     //     return res.send('Product Id does not exit');
     // } 
 
+    if (Number(quantity) <= 0) {
+        return res.send({success: false, error: "Cart cannot be negative number or 0"});
+    }
     
-    if (!productId || !quantity) {
-        return res.send("Missing field of item order");
+     if (!productId || String(quantity).length == 0) {
+        return res.send({success: false, error: "Missing field of item order"});
     } 
 
     const addToCart = {
