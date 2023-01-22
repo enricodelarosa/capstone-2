@@ -565,6 +565,10 @@ module.exports.getProfile = async (req, res) => {
 
     return Promise.all(newCart).then(values => {
         const cartValue = values.reduce((total,orderItem) => {
+            if (!orderItem.isActive) {
+                return total;
+            }
+
             return total + Number(orderItem.subTotal);
             
     
