@@ -511,6 +511,12 @@ module.exports.getProfile = async (req, res) => {
 
     // console.log(req.headers.authorization);
 
+    const activeProducts = await Product.find({isActive: true}).then(result => {
+        return result.map(product => {
+            return String(product._id);
+        })
+    })
+
     const user = await User.findById(req.body.user.userId).then(result => {
         //console.log(result);
 
@@ -520,22 +526,35 @@ module.exports.getProfile = async (req, res) => {
             result.password = "*****"
 
 
-
             return result;
         }
     });
+
 
     const newCart = [];
 
     for (let cartItem of user.cart) {
         newCart.push(Product.findById(cartItem.productId).then(result => {
 
+            let isFound = activeProducts.find(activeProduct => {
+                console.log(activeProduct);
+                console.log(cartItem);
+                return activeProduct === cartItem.productId;
+           }) 
+
+           if (typeof isFound == 'undefined') {
+                isFound = false;
+           } else {
+            isFound = true;
+           }
+
             const objToPush = {
                 productId : result._id,
                 name: result.name,
                 quantity: cartItem.quantity,
                 price: result.price,
-                subTotal: cartItem.quantity * result.price
+                subTotal: cartItem.quantity * result.price,
+                isActive: isFound
             }
 
             return objToPush
@@ -556,6 +575,7 @@ module.exports.getProfile = async (req, res) => {
             cart: values,
             cartValue
         }
+        console.log(newUser);
         return res.send(newUser)
     })
 
