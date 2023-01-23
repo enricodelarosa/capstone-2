@@ -57,7 +57,25 @@ module.exports.getAllProducts = (req, res) => {
 }
 
 module.exports.getAllProductsAdmin = (req, res) => {
-    return Product.find({}).then(result => {
+
+    console.log(req.query);
+    let sortField = req.query.field;
+    let isAsc = Number(req.query.isAsc);
+
+    if (typeof sortField == 'undefined') {
+        sortField = 'name';
+    
+    }
+
+    if (typeof isAsc == 'undefined') {
+        sortBy = 1;
+    }
+
+    const sortObj = {[sortField]: isAsc}
+
+    console.log(sortObj);
+
+    return Product.find({}).sort(sortObj).then(result => {
         return res.send(result);
     })
 }
